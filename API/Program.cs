@@ -1,4 +1,4 @@
-using API.Controllers.Config;
+﻿using API.Controllers.Config;
 using API.Extensions;
 using Business.Domain.Services;
 using Business.Resources;
@@ -8,6 +8,7 @@ using Business.Services.CronJob;
 using Infrastructure.Contexts;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateBootstrapLogger();
@@ -42,6 +43,11 @@ try
 
     // Get the base URL of the application (http(s)://www.api.com) from the HTTP Request and Context.
     builder.Services.AddHttpContextAccessor();
+    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+    // Đăng ký ExcelPackage trong DI container
+    builder.Services.AddScoped<ExcelPackage>();
+
     builder.Services.AddSingleton<IUriService>(o =>
     {
         var accessor = o.GetRequiredService<IHttpContextAccessor>();

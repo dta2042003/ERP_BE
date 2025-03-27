@@ -15,20 +15,25 @@ namespace API.Controllers
     public class TimesheetController : ControllerBase
     {
         #region Property
+
         private readonly ITimesheetService _timesheetService;
         protected readonly ResponseMessage ResponseMessage;
+
         #endregion
 
         #region Constructor
+
         public TimesheetController(ITimesheetService timesheetService,
             IOptionsMonitor<ResponseMessage> responseMessage)
         {
             this._timesheetService = timesheetService;
             this.ResponseMessage = responseMessage.CurrentValue;
         }
+
         #endregion
 
         #region Action
+
         [HttpPost("import")]
         //[Authorize(Roles = $"{Role.Admin}, {Role.EditorQTNS}")]
         [AllowAnonymous]
@@ -39,14 +44,14 @@ namespace API.Controllers
             // Validate file import
             var validateResult = ValidateTimesheet(file);
             if (!validateResult.isSuccess) return BadRequest(validateResult.result);
-
+            
             var filePath = Path.GetTempFileName();
 
             var stream = new FileStream(filePath, FileMode.Create);
             await file.CopyToAsync(stream);
             stream.Position = 0;
-
             var result = await _timesheetService.ImportAsync(stream);
+
             stream.Dispose();
 
             // Clean temp-file
@@ -60,7 +65,7 @@ namespace API.Controllers
         }
 
         [HttpGet()]
-        [Authorize(Roles = $"{Role.Admin}, {Role.EditorQTNS}, {Role.EditorKT}")]
+        // [Authorize(Roles = $"{Role.Admin}, {Role.EditorQTNS}, {Role.EditorKT}")]
         [ProducesResponseType(typeof(BaseResponse<TimesheetResource>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseResponse<TimesheetResource>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetTimesheetByPersonIdAsync(int personId, DateTime date)
@@ -74,9 +79,11 @@ namespace API.Controllers
 
             return Ok(result);
         }
+
         #endregion
 
         #region Private work
+
         private (bool isSuccess, BaseResponse<object> result) ValidateTimesheet(IFormFile file)
         {
             if (file == null || file.Length <= 0)
@@ -87,6 +94,7 @@ namespace API.Controllers
 
             return (true, new BaseResponse<object>(true));
         }
+
         #endregion
     }
 }
